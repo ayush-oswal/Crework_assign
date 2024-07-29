@@ -1,20 +1,27 @@
 "use client"
 
-import React from 'react'
+import React, { useState } from 'react'
 import { BellIcon, DoubleArrowRightIcon, DownloadIcon, GearIcon, GridIcon, HomeIcon, PersonIcon, SunIcon, TextAlignLeftIcon } from '@radix-ui/react-icons'
 import { useUserStore } from '@/store'
+import CreateTaskDialog from './ui/createTaskDialog';
 import { useTheme } from "next-themes"
-
+import { CreateNew } from './taskConatiner';
 
 const Sidebar = () => {
     const {username, setUsername} = useUserStore();
     const { setTheme } = useTheme()
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const Logout = () => {
         setUsername("")
         setTheme("light")
     }
   return (
-    <div className='bg-white dark:bg-slate-600 flex flex-col items-start justify-between gap-2 h-full w-full p-2 pt-8 pb-8'>
+    <div className='bg-white dark:bg-slate-700 flex flex-col items-start justify-between gap-2 h-full w-full p-2 pt-8 pb-8'>
+        <CreateTaskDialog 
+            isOpen={isDialogOpen}
+            onClose={()=>{setIsDialogOpen(false)}}
+            onSubmit={CreateNew}
+        />
         <div className='flex flex-col items-start gap-2 w-full'>
         <div className='flex items-start'>
             <PersonIcon className='h-5 w-5'/> &nbsp;&nbsp;&nbsp;&nbsp;
@@ -38,7 +45,7 @@ const Sidebar = () => {
             <div className='flex gap-3 items-center  hover:bg-gray-400 hover:cursor-pointer pr-28 p-2 rounded-md'><TextAlignLeftIcon className='h-5 w-5' />Analytics</div>
         </div>
         <div className='w-full'>
-            <button className='w-full bg-blue-900 p-2 pr-4 pl-4 rounded-md text-white hover:bg-blue-800'>Create New +</button>
+            <button onClick={()=>setIsDialogOpen(true)} className='w-full bg-blue-900 p-2 pr-4 pl-4 rounded-md text-white hover:bg-blue-800'>Create New +</button>
         </div>
         </div>
         <div className='flex gap-2 items-center p-2 bg-gray-300 dark:bg-gray-500 rounded-md'>

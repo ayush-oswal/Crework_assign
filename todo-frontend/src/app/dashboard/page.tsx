@@ -21,7 +21,7 @@ const Dashboard = () => {
       <div className='h-full'>
         <Sidebar />
       </div>
-      <div className='h-full flex flex-col w-screen'>
+      <div className='h-screen flex flex-col w-screen bg-gray-200 dark:bg-slate-600'>
         <Header />
         <TaskConatiner />
       </div>

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/store';
+import { useTheme } from 'next-themes';
 
 export default function Home() {
   const [email, setEmail] = useState('');
@@ -15,6 +16,10 @@ export default function Home() {
   const [clicked, setClicked] = useState(false)
   const Router = useRouter()
   const {setUsername} = useUserStore()
+  const {setTheme} = useTheme();
+  useEffect(()=>{
+    setTheme("light")
+  })
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     try{
