@@ -9,23 +9,31 @@ import { useTheme } from 'next-themes';
 export default function Home() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [isSignin, setIsSignin] = useState(true);
   const [isSignup, setIsSignup] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [clicked, setClicked] = useState(false)
   const Router = useRouter()
-  const {setUsername} = useUserStore()
+  const {setUsername,setUserId} = useUserStore()
   const {setTheme} = useTheme();
   useEffect(()=>{
     setTheme("light")
   })
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try{
     e.preventDefault();
     setClicked(true)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if(isSignup && name.length < 3){
+      setErrorMessage('Name must be at least 3 characters long.');
+      setClicked(false)
+      return;
+    }
+
     if (!emailRegex.test(email)) {
       setErrorMessage('Invalid email format.');
       setClicked(false)
@@ -40,14 +48,27 @@ export default function Home() {
 
     setErrorMessage('');
 
-    // Add your logic here for sign-in or sign-up
-    if (isSignin) {
-      console.log('Sign In:', { email, password });
-    } else if (isSignup) {
-      console.log('Sign Up:', { email, password });
-    }
-    setUsername(email.split('@')[0])
-    Router.push("/dashboard")
+    const endpoint = isSignin ? 'auth/signin' : 'auth/signup';
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: isSignin ? JSON.stringify({ email, password }) : JSON.stringify({ name, email, password })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || 'Something went wrong');
+        setClicked(false);
+        return;
+      }
+
+      const data = await response.json();
+      console.log(data)
+      setUsername(data.username);
+      setUserId(data.userId);
+      Router.push("/dashboard");
     }
     catch(e){
       setClicked(false)
@@ -70,6 +91,19 @@ export default function Home() {
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
         <h2 className="text-2xl font-bold mb-6 text-center dark:text-black">Welcome to <span className='text-purple-500'>Workflo!</span></h2>
         <form className="space-y-4" onSubmit={handleFormSubmit}>
+          {isSignup && (
+            <div>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Name"
+              className="mt-1 block w-full px-3 py-2 dark:bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-purple-500 focus:border-purple-500"
+            />
+          </div>
+          )}
           <div>
             <input
               type="text"

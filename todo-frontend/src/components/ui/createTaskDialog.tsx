@@ -7,11 +7,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { CreateNew } from '@/lib/actions/crud';
+import { v4 as uuidv4 } from 'uuid';
 
 interface CreateTaskDialogProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (task: Task) => void;
     columnStatus?: string;
 }
 
@@ -24,7 +25,7 @@ interface Task {
     deadline?: string;
 }
 
-const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ isOpen, onClose, onSubmit, columnStatus }) => {
+const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ isOpen, onClose, columnStatus }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState(columnStatus || "todo");
@@ -32,7 +33,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ isOpen, onClose, on
     const [deadline, setDeadline] = useState('');
 
     useEffect(() => {
-        setStatus(columnStatus || "");
+        setStatus(columnStatus || "todo");
     }, [columnStatus]);
 
     const handleSubmit = () => {
@@ -41,14 +42,15 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ isOpen, onClose, on
             return;
         }
         const newTask: Task = {
-            id: `task-${Date.now()}`,
+            id: uuidv4(),
             title,
             description,
             status,
             priority: priority || undefined,
             deadline: deadline || undefined,
         };
-        onSubmit(newTask);
+        console.log(newTask)
+        CreateNew(newTask);
         setTitle('')
         setDescription('')
         setPriority('')
@@ -81,6 +83,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ isOpen, onClose, on
                             className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                         />
                     </div>
+                    {!columnStatus && (
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Status</label>
                         <select
@@ -94,6 +97,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ isOpen, onClose, on
                             <option value="completed">Completed</option>
                         </select>
                     </div>
+                    )}
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Priority</label>
                         <select
@@ -118,7 +122,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ isOpen, onClose, on
                     </div>
                 </div>
                 <DialogFooter>
-                    <button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
+                    <button onClick={onClose} className="px-4 py-2 bg-gray-300 dark:bg-black rounded-md">Cancel</button>
                     <button onClick={handleSubmit} className="px-4 py-2 bg-blue-600 text-white rounded-md">Create</button>
                 </DialogFooter>
             </DialogContent>

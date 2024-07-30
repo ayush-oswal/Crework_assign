@@ -1,9 +1,11 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd' 
+import React, { useEffect, useState } from 'react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import TaskCard from './ui/taskCard';
 import CreateTaskDialog from './ui/createTaskDialog';
+import { useUserStore } from '@/store';
+import { formatTodosToColumns } from '@/lib/actions/format';
 
 interface Task {
     id: string;
@@ -12,135 +14,110 @@ interface Task {
     status: string;
     priority?: 'Low' | 'Medium' | 'Urgent';
     deadline?: string;
-  }
-  
-  interface Column {
-    name: string;
-    items: Task[];
-  }
-  
-  interface Columns {
-    [key: string]: Column;
-  }
-  
-  const columnsFromBackend: Columns = {
-    todo: {
-      name: "To-Do",
-      items: [
-        { id: 'task-1', title: 'Task 1', status: 'todo', priority: 'Low', description: 'Prepare the project proposal.', deadline: '22-07-2003' },
-        { id: 'task-2', title: 'Task 2', status: 'todo', priority: 'Medium', description: 'Review the design mockups.', deadline: '29-07-2006' },
-      ]
-    },
-    inProgress: {
-      name: "In Progress",
-      items: [
-        { id: 'task-3', title: 'Task 3', status: 'inProgress', priority: 'Urgent', description: 'Fix the critical bug in the application.', deadline: '22-07-2024' },
-        { id: 'task-6', title: 'Task 6', status: 'inProgress', priority: 'Medium', description: 'Implement the new authentication flow.', deadline: '29-07-2024' }
-      ]
-    },
-    underReview: {
-      name: "Under Review",
-      items: [
-        { id: 'task-4', title: 'Task 4', status: 'underReview', priority: 'Low', description: 'Check the code review comments.', deadline: '29-07-2035' },
-      ]
-    },
-    completed: {
-      name: "Completed",
-      items: [
-        { id: 'task-5', title: 'Task 5', status: 'completed', priority: 'Medium', description: 'Deploy the latest version to production.', deadline: '13-06-2019' },
-      ]
-    }
-  };
-
-export const CreateNew = (newTask : Task) => {
-    if (columnsFromBackend[newTask.status]) {
-        columnsFromBackend[newTask.status].items.unshift(newTask);
-    }
 }
 
-export const onEdit = (updatedTask: Task) => {
-  const { status, id } = updatedTask;
-  if (columnsFromBackend[status]) {
-    const column = columnsFromBackend[status];
-    const taskIndex = column.items.findIndex((task) => task.id === id);
-    if (taskIndex !== -1) {
-      column.items[taskIndex] = updatedTask;
-    }
-  }
-};
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export const onDelete = (status: string, id: string) => {
-  if (columnsFromBackend[status]) {
-    const column = columnsFromBackend[status];
-    const taskIndex = column.items.findIndex((task) => task.id === id);
-    if (taskIndex !== -1) {
-      column.items.splice(taskIndex, 1);
-    }
-  }
-};
+const TaskContainer = () => {
+    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+    const [currentColumn, setCurrentColumn] = useState<string>('todo');
+    const { tasks, setTasks, userId } = useUserStore();
 
-const TaskConatiner = () => {
-  const [columns, setColumns] = useState(columnsFromBackend);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const [currentColumn, setCurrentColumn] = useState<string>('todo');
+    useEffect(() => {
+        const fetchTasks = async () => {
+            try {
+                const response = await fetch(`${BASE_URL}/task/getTasks/${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-  useEffect(()=>{
-    setColumns(columnsFromBackend)
-  },[columnsFromBackend])
+                if (!response.ok) {
+                    throw new Error('Failed to fetch tasks');
+                }
 
+                const tasksFromBackend = await response.json();
+                setTasks(formatTodosToColumns(tasksFromBackend));
+            } catch (error) {
+                console.error('Error fetching tasks:', error);
+            }
+        };
+        if (userId) {
+            fetchTasks();
+        }
+    }, [userId]);
 
-  const AddNew = (columnId: string) => {
-    console.log(columnId)
-    setCurrentColumn(columnId);
-    setIsDialogOpen(true);
-  }
+    const AddNew = (columnId: string) => {
+        console.log(columnId);
+        setCurrentColumn(columnId);
+        setIsDialogOpen(true);
+    };
 
-  const onDragEnd = async (result : any) => {
-    const { source, destination } = result;
+    const onDragEnd = async (result: any) => {
+        const { source, destination } = result;
 
-    if (!destination) return;
+        if (!destination) return;
+        
+        const sourceColumn = tasks[source.droppableId];
+        const destColumn = tasks[destination.droppableId];
+        if (sourceColumn === destColumn) return;
 
-    const sourceColumn = columns[source.droppableId];
-    const destColumn = columns[destination.droppableId];
-    if(sourceColumn===destColumn) return;
-    const sourceItems = [...sourceColumn.items];
-    const [removed] = sourceItems.splice(source.index, 1);
-    const destItems = [...destColumn.items];
-    destItems.splice(destination.index, 0, removed);
+        const currTasks = { ...tasks };
 
-    const updatedColumns = {
-        ...columns,
-        [source.droppableId]: {
-            ...sourceColumn,
-            items: sourceItems
-        },
-        [destination.droppableId]: {
-            ...destColumn,
-            items: destItems
+        const sourceItems = [...sourceColumn.items];
+        const [removed] = sourceItems.splice(source.index, 1);
+        removed.status = destination.droppableId;
+        const destItems = [...destColumn.items];
+        destItems.splice(destination.index, 0, removed);
+
+        const updatedTasks = {
+            ...tasks,
+            [source.droppableId]: {
+                ...sourceColumn,
+                items: sourceItems
+            },
+            [destination.droppableId]: {
+                ...destColumn,
+                items: destItems
+            }
+        };
+
+        setTasks(updatedTasks);
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/task/editStatus`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: removed.id, userId, status: removed.status })
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to update task status');
+            }
+        } catch (error) {
+            console.error('Error updating task status:', error);
+            setTasks(currTasks);
         }
     };
 
-    setColumns(updatedColumns);
-  };
-  return (
-    <div className="flex justify-center gap-4 p-4 h-full w-full">
-        <CreateTaskDialog 
-            isOpen={isDialogOpen}
-            onClose={()=>{setIsDialogOpen(false)}}
-            onSubmit={CreateNew}
-            columnStatus={currentColumn}
-        />
+    return (
+        <div className="flex justify-center gap-4 p-4 h-full w-full">
+            <CreateTaskDialog
+                isOpen={isDialogOpen}
+                onClose={() => { setIsDialogOpen(false); }}
+                columnStatus={currentColumn}
+            />
             <DragDropContext onDragEnd={onDragEnd}>
-                {Object.entries(columns).map(([columnId, column]) => {
+                {Object.entries(tasks).map(([columnId, column]) => {
                     return (
                         <div className="flex flex-col items-center gap-2 w-1/4 h-full" key={columnId}>
                             <div className="text-lg text-gray-600 dark:text-white">{column.name}</div>
-                            <div className='min-w-full flex items-center justify-center'>
-                                  <button onClick={()=>AddNew(columnId)} className='bg-blue-900 p-1 pl-2 pr-2 rounded-md text-white hover:bg-blue-800'>Add New +</button>
-                            </div>
-                            <div className="w-full h-full">
+                            
+                            <div className="w-full">
                                 <Droppable droppableId={columnId} key={columnId}>
-                                    {(provided:any, snapshot:any) => {
+                                    {(provided: any, snapshot: any) => {
                                         return (
                                             <div
                                                 {...provided.droppableProps}
@@ -152,14 +129,14 @@ const TaskConatiner = () => {
                                                 {column.items.map((item, index) => {
                                                     return (
                                                         <Draggable key={item.id} draggableId={item.id} index={index}>
-                                                            {(provided:any, snapshot:any) => {
+                                                            {(provided: any, snapshot: any) => {
                                                                 return (
                                                                     <div
                                                                         ref={provided.innerRef}
                                                                         {...provided.draggableProps}
                                                                         {...provided.dragHandleProps}
                                                                         className='select-none p-1 bg-gray-100 dark:bg-slate-800 rounded-md' >
-                                                                        <TaskCard 
+                                                                        <TaskCard
                                                                             id={item.id}
                                                                             title={item.title}
                                                                             description={item.description}
@@ -179,12 +156,15 @@ const TaskConatiner = () => {
                                     }}
                                 </Droppable>
                             </div>
+                            <div className='min-w-full flex items-center justify-center'>
+                                <button onClick={() => AddNew(columnId)} className='bg-blue-900 p-1 pl-2 pr-2 rounded-md text-white hover:bg-blue-800'>Add New +</button>
+                            </div>
                         </div>
                     );
                 })}
             </DragDropContext>
         </div>
-  )
+    );
 }
 
-export default TaskConatiner
+export default TaskContainer;

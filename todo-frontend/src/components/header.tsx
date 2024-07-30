@@ -6,7 +6,6 @@ import { ModeToggle } from './ui/modeToggle';
 import { CalendarIcon, DoubleArrowDownIcon, MagnifyingGlassIcon, Share1Icon, StarIcon } from '@radix-ui/react-icons';
 import Image from 'next/image';
 import CreateTaskDialog from './ui/createTaskDialog';
-import { CreateNew } from './taskConatiner';
 
 const Header = () => {
     const {username} = useUserStore();
@@ -17,7 +16,6 @@ const Header = () => {
         <CreateTaskDialog 
             isOpen={isDialogOpen}
             onClose={()=>{setIsDialogOpen(false)}}
-            onSubmit={CreateNew}
         />
         <div className='flex items-center justify-between'>
           <div className='text-3xl font-semibold'>

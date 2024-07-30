@@ -7,11 +7,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { onEdit } from '@/lib/actions/crud';
 
 interface EditTaskDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (task: Task) => void;
   task: Task;
 }
 
@@ -24,24 +24,22 @@ interface Task {
   deadline?: string;
 }
 
-const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ isOpen, onClose, onSubmit, task }) => {
+const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ isOpen, onClose, task }) => {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || '');
-  const [status, setStatus] = useState(task.status);
   const [priority, setPriority] = useState<'Low' | 'Medium' | 'Urgent' | ''>(task.priority || '');
   const [deadline, setDeadline] = useState(task.deadline || '');
 
 
   const handleSubmit = () => {
-    if (title === '' || status === '') {
-      alert("Title or status cannot be empty");
+    if (title === '') {
+      alert("Title cannot be empty");
       return;
     }
     const updatedTask: Task = {
       ...task,
       title,
       description,
-      status,
       priority: priority || undefined,
       deadline: deadline || undefined,
     };
@@ -49,7 +47,7 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ isOpen, onClose, onSubm
     setDescription('')
     setPriority('')
     setDeadline('')
-    onSubmit(updatedTask);
+    onEdit(updatedTask);
     onClose();
   };
 
@@ -79,19 +77,6 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ isOpen, onClose, onSubm
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Status</label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-            >
-              <option value="todo">To-Do</option>
-              <option value="inProgress">In Progress</option>
-              <option value="underReview">Under Review</option>
-              <option value="completed">Completed</option>
-            </select>
-          </div>
-          <div>
             <label className="block text-sm font-medium text-gray-700">Priority</label>
             <select
               value={priority}
@@ -115,7 +100,7 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ isOpen, onClose, onSubm
           </div>
         </div>
         <DialogFooter>
-          <button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded-md">Cancel</button>
+          <button onClick={onClose} className="px-4 py-2 bg-gray-300 dark:bg-black rounded-md">Cancel</button>
           <button onClick={handleSubmit} className="px-4 py-2 bg-blue-600 text-white rounded-md">Update</button>
         </DialogFooter>
       </DialogContent>

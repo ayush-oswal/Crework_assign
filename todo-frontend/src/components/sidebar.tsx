@@ -5,14 +5,20 @@ import { BellIcon, DoubleArrowRightIcon, DownloadIcon, GearIcon, GridIcon, HomeI
 import { useUserStore } from '@/store'
 import CreateTaskDialog from './ui/createTaskDialog';
 import { useTheme } from "next-themes"
-import { CreateNew } from './taskConatiner';
 
 const Sidebar = () => {
-    const {username, setUsername} = useUserStore();
+    const {username, setUsername, setUserId, setTasks} = useUserStore();
     const { setTheme } = useTheme()
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const Logout = () => {
         setUsername("")
+        setUserId("")
+        setTasks({
+            todo: { name: "To-Do", items: [] },
+            inProgress: { name: "In Progress", items: [] },
+            underReview: { name: "Under Review", items: [] },
+            completed: { name: "Completed", items: [] },
+        })
         setTheme("light")
     }
   return (
@@ -20,7 +26,6 @@ const Sidebar = () => {
         <CreateTaskDialog 
             isOpen={isDialogOpen}
             onClose={()=>{setIsDialogOpen(false)}}
-            onSubmit={CreateNew}
         />
         <div className='flex flex-col items-start gap-2 w-full'>
         <div className='flex items-start'>
