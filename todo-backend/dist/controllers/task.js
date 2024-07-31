@@ -64,7 +64,7 @@ exports.createTask = createTask;
 const editTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield (0, database_1.default)();
-        const { userId, id, title, description, status, priority, deadline } = req.body;
+        const { userId, id, title, description, status, priority, deadline, time } = req.body;
         const userTasks = yield Task_1.default.findOne({ userId });
         if (!userTasks) {
             return res.status(404).json({ message: "User tasks not found" });
@@ -78,6 +78,7 @@ const editTask = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         task.status = status;
         task.priority = priority;
         task.deadline = deadline;
+        task.time = time;
         yield userTasks.save();
         return res.status(200).json(task);
     }
