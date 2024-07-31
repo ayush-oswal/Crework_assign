@@ -32,6 +32,15 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ isOpen, onClose, task }
   const [deadline, setDeadline] = useState(task.deadline || '');
 
 
+  useEffect(() => {
+    if (task) {
+      setTitle(task.title);
+      setDescription(task.description || '');
+      setPriority(task.priority || '');
+      setDeadline(task.deadline || '');
+    }
+  }, [task]);
+
   const handleSubmit = () => {
     if (title === '') {
       alert("Title cannot be empty");
