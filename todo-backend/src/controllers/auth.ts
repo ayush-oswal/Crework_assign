@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import User from '../database/models/User';
 import { Request, Response } from 'express';
 import ConnectDB from '../database';

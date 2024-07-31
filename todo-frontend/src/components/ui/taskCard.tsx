@@ -4,6 +4,7 @@ import { ClockIcon, CrossCircledIcon, Pencil1Icon } from '@radix-ui/react-icons'
 import React, { useState } from 'react';
 import EditTaskDialog from './editTaskDialog';
 import { onDelete } from '@/lib/actions/crud';
+import timeAgo from '@/lib/actions/timeAgo';
 
 interface Task {
   id: string;
@@ -12,6 +13,7 @@ interface Task {
   status: string;
   priority?: 'Low' | 'Medium' | 'Urgent';
   deadline?: string;
+  time?: Date;
 }
 
 const background = new Map<string, string>([
@@ -26,7 +28,7 @@ const formatDate = (dateString:string) => {
   return `${day}/${month}/${year}`;
 };
 
-const TaskCard: React.FC<Task> = ({ id, title, description, status, priority, deadline}) => {
+const TaskCard: React.FC<Task> = ({ id, title, description, status, priority, deadline, time}) => {
   const bg = priority ? background.get(priority) : 'bg-gray-500';
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const currtask : Task = {
@@ -35,7 +37,8 @@ const TaskCard: React.FC<Task> = ({ id, title, description, status, priority, de
     description,
     status,
     priority,
-    deadline
+    deadline,
+    time
   }
   const handleEdit = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -80,6 +83,9 @@ const TaskCard: React.FC<Task> = ({ id, title, description, status, priority, de
       </div>
       <div>
       {deadline && <div className="text-sm flex gap-1 items-center"><ClockIcon /> <span className='text-blue-500'>{formatDate(deadline)}</span></div>}
+      </div>
+      <div>
+      {time && <div className="text-sm text-gray-500">{timeAgo(new Date(time))}</div>}
       </div>
     </div>
   );

@@ -50,7 +50,7 @@ const Sidebar = () => {
             <div className='flex gap-3 items-center  hover:bg-gray-400 hover:cursor-pointer pr-28 p-2 rounded-md'><TextAlignLeftIcon className='h-5 w-5' />Analytics</div>
         </div>
         <div className='w-full'>
-            <button onClick={()=>setIsDialogOpen(true)} className='w-full bg-blue-900 p-2 pr-4 pl-4 rounded-md text-white hover:bg-blue-800'>Create New +</button>
+            <button onClick={()=>setIsDialogOpen(true)} className='w-full bg-blue-900 p-2 pr-4 pl-4 rounded-md text-white hover:bg-blue-800'>Create New task +</button>
         </div>
         </div>
         <div className='flex gap-2 items-center p-2 bg-gray-300 dark:bg-gray-500 rounded-md'>

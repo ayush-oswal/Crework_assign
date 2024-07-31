@@ -22,6 +22,7 @@ interface Task {
   status: string;
   priority?: 'Low' | 'Medium' | 'Urgent';
   deadline?: string;
+  time?:Date;
 }
 
 const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ isOpen, onClose, task }) => {
@@ -42,6 +43,7 @@ const EditTaskDialog: React.FC<EditTaskDialogProps> = ({ isOpen, onClose, task }
       description,
       priority: priority || undefined,
       deadline: deadline || undefined,
+      time: new Date()
     };
     setTitle('')
     setDescription('')

@@ -52,7 +52,7 @@ export const createTask = async(req:Request,res:Response) => {
 export const editTask = async(req:Request,res:Response) => {
     try {
         await ConnectDB()
-        const { userId, id, title, description, status, priority, deadline } = req.body;
+        const { userId, id, title, description, status, priority, deadline, time } = req.body;
         const userTasks = await Task.findOne({ userId });
         if (!userTasks) {
           return res.status(404).json({ message: "User tasks not found" });
@@ -68,6 +68,7 @@ export const editTask = async(req:Request,res:Response) => {
         task.status = status;
         task.priority = priority;
         task.deadline = deadline;
+        task.time = time;
   
         await userTasks.save();
         return res.status(200).json(task);

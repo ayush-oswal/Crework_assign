@@ -7,6 +7,7 @@ interface Task {
     status: string;
     priority?: 'Low' | 'Medium' | 'Urgent';
     deadline?: string;
+    time?: Date
 }
 
 interface Column {

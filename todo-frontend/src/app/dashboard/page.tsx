@@ -15,7 +15,7 @@ const Dashboard = () => {
     if (!username) {
         Router.push("/");
     }
-}, [username]);
+}, [username,Router]);
   return (
     <div className='h-screen w-screen flex'>
       <div className='h-full'>

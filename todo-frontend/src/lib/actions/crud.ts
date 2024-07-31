@@ -9,6 +9,7 @@ interface Task {
     status: string;
     priority?: 'Low' | 'Medium' | 'Urgent';
     deadline?: string;
+    time?: Date;
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;

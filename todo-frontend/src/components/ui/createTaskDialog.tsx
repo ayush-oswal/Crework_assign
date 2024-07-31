@@ -23,6 +23,7 @@ interface Task {
     status: string;
     priority?: 'Low' | 'Medium' | 'Urgent';
     deadline?: string;
+    time?: Date;
 }
 
 const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ isOpen, onClose, columnStatus }) => {
@@ -48,6 +49,7 @@ const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({ isOpen, onClose, co
             status,
             priority: priority || undefined,
             deadline: deadline || undefined,
+            time: new Date
         };
         console.log(newTask)
         CreateNew(newTask);

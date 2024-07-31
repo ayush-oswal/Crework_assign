@@ -6,15 +6,7 @@ import TaskCard from './ui/taskCard';
 import CreateTaskDialog from './ui/createTaskDialog';
 import { useUserStore } from '@/store';
 import { formatTodosToColumns } from '@/lib/actions/format';
-
-interface Task {
-    id: string;
-    title: string;
-    description?: string;
-    status: string;
-    priority?: 'Low' | 'Medium' | 'Urgent';
-    deadline?: string;
-}
+import { HamburgerMenuIcon } from '@radix-ui/react-icons';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -113,8 +105,10 @@ const TaskContainer = () => {
                 {Object.entries(tasks).map(([columnId, column]) => {
                     return (
                         <div className="flex flex-col items-center gap-2 w-1/4 h-full" key={columnId}>
-                            <div className="text-lg text-gray-600 dark:text-white">{column.name}</div>
-                            
+                            <div className="text-lg w-full pl-2 pr-2 text-gray-600 dark:text-white flex justify-between items-center">
+                                <div>{column.name}</div>
+                                <div><HamburgerMenuIcon /></div>
+                            </div>
                             <div className="w-full">
                                 <Droppable droppableId={columnId} key={columnId}>
                                     {(provided: any, snapshot: any) => {
@@ -143,6 +137,7 @@ const TaskContainer = () => {
                                                                             status={item.status}
                                                                             priority={item.priority}
                                                                             deadline={item.deadline}
+                                                                            time={item.time}
                                                                         />
                                                                     </div>
                                                                 );
@@ -157,7 +152,7 @@ const TaskContainer = () => {
                                 </Droppable>
                             </div>
                             <div className='min-w-full flex items-center justify-center'>
-                                <button onClick={() => AddNew(columnId)} className='bg-blue-900 p-1 pl-2 pr-2 rounded-md text-white hover:bg-blue-800'>Add New +</button>
+                                <button onClick={() => AddNew(columnId)} className='bg-blue-900 w-full p-1 pl-2 pr-2 rounded-md text-white hover:bg-blue-800'>Add New +</button>
                             </div>
                         </div>
                     );
