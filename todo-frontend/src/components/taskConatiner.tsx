@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -7,6 +7,8 @@ import CreateTaskDialog from './ui/createTaskDialog';
 import { useUserStore } from '@/store';
 import { formatTodosToColumns } from '@/lib/actions/format';
 import { HamburgerMenuIcon } from '@radix-ui/react-icons';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -41,7 +43,6 @@ const TaskContainer = () => {
     }, [userId]);
 
     const AddNew = (columnId: string) => {
-        console.log(columnId);
         setCurrentColumn(columnId);
         setIsDialogOpen(true);
     };
@@ -50,7 +51,7 @@ const TaskContainer = () => {
         const { source, destination } = result;
 
         if (!destination) return;
-        
+
         const sourceColumn = tasks[source.droppableId];
         const destColumn = tasks[destination.droppableId];
         if (sourceColumn === destColumn) return;
@@ -84,7 +85,7 @@ const TaskContainer = () => {
                 },
                 body: JSON.stringify({ id: removed.id, userId, status: removed.status })
             });
-    
+
             if (!response.ok) {
                 throw new Error('Failed to update task status');
             }
@@ -92,6 +93,35 @@ const TaskContainer = () => {
             console.error('Error updating task status:', error);
             setTasks(currTasks);
         }
+    };
+
+    const handleSort = (columnId: string, sortType: 'latest' | 'priority') => {
+        const columnTasks = tasks[columnId].items.slice();
+
+        if (sortType === 'latest') {
+            columnTasks.sort((a, b) => {
+                const timeA = a.time ? new Date(a.time).getTime() : Number.MAX_SAFE_INTEGER;
+                const timeB = b.time ? new Date(b.time).getTime() : Number.MAX_SAFE_INTEGER;
+                return timeB - timeA;
+            });
+        } else if (sortType === 'priority') {
+            const priorityOrder = { Urgent: 1, Medium: 2, Low: 3 };
+            columnTasks.sort((a, b) => {
+                const priorityA = a.priority ? priorityOrder[a.priority] : 4;
+                const priorityB = b.priority ? priorityOrder[b.priority] : 4;
+                return priorityA - priorityB;
+            });
+        }
+
+        const updatedTasks = {
+            ...tasks,
+            [columnId]: {
+                ...tasks[columnId],
+                items: columnTasks
+            }
+        };
+
+        setTasks(updatedTasks);
     };
 
     return (
@@ -107,7 +137,17 @@ const TaskContainer = () => {
                         <div className="flex flex-col items-center gap-2 w-1/4 h-full" key={columnId}>
                             <div className="text-lg w-full pl-2 pr-2 text-gray-600 dark:text-white flex justify-between items-center">
                                 <div>{column.name}</div>
-                                <div><HamburgerMenuIcon /></div>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="ghost">
+                                            <HamburgerMenuIcon />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-44 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+                                        <Button variant="link" onClick={() => handleSort(columnId, 'latest')}>Sort by Latest</Button>
+                                        <Button variant="link" onClick={() => handleSort(columnId, 'priority')}>Sort by Priority</Button>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                             <div className="w-full">
                                 <Droppable droppableId={columnId} key={columnId}>
