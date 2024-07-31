@@ -65,3 +65,5 @@ This project is a simple task management tool similar to Trello, allowing users 
     ```sh
     docker-compose up --build
     ```
+### Sign in
+1.    **use test1@gmail.com as email and test as password for testing**
