@@ -8,7 +8,6 @@ This project is a simple task management tool similar to Trello, allowing users 
 - **Task Management**: Create, update, delete tasks. 
 - **Drag and Drop**: Easily move tasks between different columns.
 - **Sorting**: Sort tasks by latest creation time or by priority. 
-- **Responsive Design**: Fully responsive UI that works across devices.
 
 ## 🛠️ Tech Stack
 - **Frontend**: Next js
