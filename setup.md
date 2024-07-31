@@ -5,9 +5,13 @@
 This project is a simple task management tool similar to Trello, allowing users to create, read, update, and delete (CRUD) tasks. Users can organize their tasks into columns, drag and drop tasks between columns, and sort tasks based on time or priority. The project is built with React for the frontend and Node.js with MongoDB for the backend.
 
 ## 🌟 Features
-- **Task Management**: Create, update, delete tasks. 
-- **Drag and Drop**: Easily move tasks between different columns.
-- **Sorting**: Sort tasks by latest creation time or by priority. 
+
+- **Optimistic Updates**: Enhances user experience by immediately reflecting changes in the UI before the backend confirms the update. If the database call fails, the UI reverts to the previous state, ensuring data consistency while providing a smooth experience.
+- **Task Management**: Create, update, and delete tasks seamlessly. Manage your tasks efficiently with full CRUD (Create, Read, Update, Delete) capabilities.
+- **Drag and Drop**: Easily move tasks between different columns using a drag-and-drop interface. This feature simplifies task management by allowing you to organize tasks visually.
+- **Sorting**: Sort tasks by the latest creation time or by priority (Low, Medium, Urgent). This ensures that you can easily access and prioritize your most important tasks.
+
+
 
 ## 🛠️ Tech Stack
 - **Frontend**: Next js
