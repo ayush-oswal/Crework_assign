@@ -15,6 +15,10 @@ app.use('/auth',authRoutes)
 
 app.use('/task',taskRoutes)
 
+app.get('/ping',(req,res)=>{
+    res.send(JSON.stringify({"message" : "pingged"}))
+})
+
 app.listen(PORT,()=>{
     console.log("App running on port", PORT )
 })
